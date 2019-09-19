@@ -7,11 +7,22 @@ foreach($logfiles as $logfile) {
   $visitorsfile = substr($logfile,0,-4).'.visitors';
   $referersfile = substr($logfile,0,-4).'.referers';
   $tmpfile = $logfile.'.tmp';
-  
-  // Check we can open the log file, then process it 
-  if (($log = fopen($logfile, "r")) !== FALSE) {
 
-    // While we have rows available in the log file, do stuff
+  // Read the Visitors file
+  $visitors = json_decode(file_get_contents($visitorsfile), true);
+
+  // Read the Referrers file
+  $referers = json_decode(file_get_contents($referersfile), true);
+
+  // Create empty list of tracked IPs
+  $ipTracker = [];
+
+  $today = date("Y-m-d");
+
+  // Check we can open the logfile and tmpfile, then process it
+  if (($log = fopen($logfile, "r")) !== FALSE && ($write = fopen($tmpfile, "w")) !== FALSE) {
+
+    // While we have rows available in the logfile, do stuff
     while (($data = fgetcsv($log, 1000, "\t")) !== FALSE) {
 
       // Assign variables to the data
@@ -21,49 +32,51 @@ foreach($logfiles as $logfile) {
       $referer = $data[4];
 
       // If the User Agent is from a bot, then skip it
-      $bots = array('bot', 'crawl', 'slurp', 'spider', 'yandex', 'WordPress', 'AHC', 'jetmon');
+      static $bots = array('bot', 'crawl', 'slurp', 'spider', 'yandex', 'WordPress', 'AHC', 'jetmon');
       foreach($bots as $bot){
         if (strpos($ua, $bot) !== false) {
           continue;
         }
       }
-      
+
       // We only count each IP once a day (Unique daily visitors)
-      if ( in_array($ipadr,$ipTracker[$rowdate]) ) {
-        continue; 
+      if (in_array($ipadr, $ipTracker[$rowdate]) ) {
+        continue;
       }
-      
+
       // We only get this far for unique, non-bot data, so let's start recording it
-      $visitors[$rowdate]++;
-      
+
       // If we have referer data, add it to the array (if it doesn't yet exist)
-      if ( $referer != "" && !in_array($referer,$referers)) {
+      if (!empty($referer) && !in_array($referer, $referers)) {
         $referers[] = $referer;
       }
 
       // Track the IP per date
       $ipTracker[$rowdate][] = $ipadr;
-      
+
+      // Write in tmpfile
+      if ($rowdate == $today) {
+        fwrite($write, join("\t",$data).PHP_EOL);
+      }
     }
     fclose($log);
-    
+    fclose($write);
+
+    // Replace logfile with tmpfile
+    rename($tmpfile, $logfile);
+
+    // Count Visitors by unique IPs
+    foreach($ipTracker as $key => $ips) {
+      $visitors[$rowdate] = count($ips);
+    }
+
     // Write the Visitors file
-    $writefile = fopen($visitorsfile,"w");
-    fwrite($writefile,json_encode($visitors));
-    fclose($writefile);
-    
+    file_put_contents($visitorsfile, json_encode($visitors));
+
     // Write the Referrers file
-    $writefile = fopen($referersfile,"w");
-    fwrite($writefile,json_encode($referers));
-    fclose($writefile);
-    
-    // Clear our variables for the next site
-    unset($visitors);
-    unset($referers);
-    unset($ipTracker);
+    file_put_contents($referersfile, json_encode($referers));
   }
 }
+
 // Update the .lastsummarize
-$writefile = fopen('.lastsummarize',"w");
-fwrite($writefile,time());
-fclose($writefile);
+file_put_contents('.lastsummarize', time());
