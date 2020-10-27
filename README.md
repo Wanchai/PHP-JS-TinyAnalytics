@@ -18,26 +18,31 @@ If you're looking for more informations than those (such as country, browser, sc
 
 There are three easy steps:
 
-1) Unzip this package in a directory, e.g. `/var/www/TinyAnalytics/`.
+1) Unzip this package to a host accessible with `https`.
 
-2) Add the following tracking code to your websites at then end of `.php` files, e.g. `/var/www/mywebsite/index.php`:
-
-    <?php 
-    include '/var/www/TinyAnalytics/tracker.php';
-    record_visit('mywebsite');
-    ?>
+2) Add the following tracking code to your websites at the end of files:
+```html
+<script>
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https:// myhost /req.php');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({ "sn": "my-website-name" }));
+</script>
+```
 
 3) Modify your password in line 5 of `index.php`. Default password is `abcdef`.    
 
-It's done! Visit at least one of your tracked websites, and open `TinyAnalytics/index.php` in your browser!
+It's done! Visit at least one of your tracked websites, and open `https:// myhost /index.php` in your browser!
 
 ## About
 
 Author: Joseph Ernest ([@JosephErnest](https://twitter.com/JosephErnest))
 
-Other projects: [BigPicture](http://bigpicture.bi), [bigpicture.js](https://github.com/josephernest/bigpicture.js), [AReallyBigPage](https://github.com/josephernest/AReallyBigPage), [SamplerBox](http://www.samplerbox.org), [Void](http://www.thisisvoid.org), [TalkTalkTalk](https://github.com/josephernest/TalkTalkTalk), [YellowNoiseAudio](http://www.yellownoiseaudio.com), [bloggggg](https://github.com/josephernest/bloggggg), etc.
-
 Thanks to [WhiteHat](http://stackoverflow.com/users/5090771/whitehat) for his help on the chart visualization design.
+
+PHP only version by [Ben Yafai](https://github.com/benyafai)
+
+Javascript version by Thomas Malicet ([@tmalicet](https://twitter.com/tmalicet))
 
 ## License
 
