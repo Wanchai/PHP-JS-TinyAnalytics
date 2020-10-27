@@ -30,7 +30,7 @@ There are three easy steps:
 </script>
 ```
 
-3) Modify your password in line 5 of `index.php`. Default password is `abcdef`.    
+3) Modify your password in config.php and set the allowed domains there.   
 
 It's done! Visit at least one of your tracked websites, and open `https:// myhost /index.php` in your browser!
 
