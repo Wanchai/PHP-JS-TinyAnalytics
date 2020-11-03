@@ -26,7 +26,7 @@ There are three easy steps:
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'https:// myhost /req.php');
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ "sn": "my-website-name" }));
+    xhr.send(JSON.stringify({ "sn": "my-website-name" , "ref": document.referrer }));
 </script>
 ```
 

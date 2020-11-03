@@ -2,11 +2,11 @@
 // Get a list of sites
 $logfiles = glob('logs/*.log', GLOB_BRACE);
 // Iterate through each site's logs
-foreach($logfiles as $logfile) {
+foreach ($logfiles as $logfile) {
   // Name our working files based on the main site log name
-  $visitorsfile = substr($logfile,0,-4).'.visitors';
-  $referersfile = substr($logfile,0,-4).'.referers';
-  $tmpfile = $logfile.'.tmp';
+  $visitorsfile = substr($logfile, 0, -4) . '.visitors';
+  $referersfile = substr($logfile, 0, -4) . '.referers';
+  $tmpfile = $logfile . '.tmp';
 
   // Read the Visitors file
   $visitors = json_decode(file_get_contents($visitorsfile), true);
@@ -28,19 +28,19 @@ foreach($logfiles as $logfile) {
       // Assign variables to the data
       $rowdate = date("Y-m-d", $data[0]);
       $ipadr = $data[1];
+      $referer = $data[2];
       $ua = $data[3];
-      $referer = $data[4];
 
       // If the User Agent is from a bot, then skip it
       static $bots = array('bot', 'crawl', 'slurp', 'spider', 'yandex', 'WordPress', 'AHC', 'jetmon');
-      foreach($bots as $bot){
+      foreach ($bots as $bot) {
         if (strpos($ua, $bot) !== false) {
           continue;
         }
       }
 
       // We only count each IP once a day (Unique daily visitors)
-      if (in_array($ipadr, $ipTracker[$rowdate]) ) {
+      if (in_array($ipadr, $ipTracker[$rowdate])) {
         continue;
       }
 
@@ -56,7 +56,7 @@ foreach($logfiles as $logfile) {
 
       // Write in tmpfile
       if ($rowdate == $today) {
-        fwrite($write, join("\t",$data).PHP_EOL);
+        fwrite($write, join("\t", $data) . PHP_EOL);
       }
     }
     fclose($log);
@@ -66,7 +66,7 @@ foreach($logfiles as $logfile) {
     rename($tmpfile, $logfile);
 
     // Count Visitors by unique IPs
-    foreach($ipTracker as $key => $ips) {
+    foreach ($ipTracker as $key => $ips) {
       $visitors[$rowdate] = count($ips);
     }
 

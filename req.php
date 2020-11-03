@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
 
     if ($checkOrigin && $data['sn']) {
-        record_visit($data['sn']);
+        record_visit($data['sn'], $data['ref']);
     }
 
     echo json_encode(['response' => 'ok']);
